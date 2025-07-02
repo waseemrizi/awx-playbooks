@@ -1,0 +1,10 @@
+---
+- name: Uninstall Google Chrome from Ubuntu
+  hosts: all
+  become: true
+  tasks:
+    - name: Remove Google Chrome
+      apt:
+        name: google-chrome-stable
+        state: absent
+        purge: yes
