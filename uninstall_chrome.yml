@@ -1,10 +1,31 @@
----
-- name: Uninstall Google Chrome from Ubuntu
+- name: Ensure Google Chrome is installed
   hosts: all
-  become: true
+  become: yes
   tasks:
-    - name: Remove Google Chrome
-      apt:
-        name: google-chrome-stable
-        state: absent
-        purge: yes
+    - name: Check if Google Chrome is already installed
+      command: dpkg -l google-chrome-stable
+      register: chrome_installed
+      ignore_errors: yes
+
+    - name: Add Google Chrome repository and install it if not present
+      block:
+        - name: Add Google signing key
+          apt_key:
+            url: https://dl.google.com/linux/linux_signing_key.pub
+            state: present
+
+        - name: Add Google Chrome repository
+          apt_repository:
+            repo: "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main"
+            state: present
+            filename: 'google-chrome'
+
+        - name: Update APT cache
+          apt:
+            update_cache: yes
+
+        - name: Install Google Chrome
+          apt:
+            name: google-chrome-stable
+            state: present
+      when: chrome_installed.rc != 0
