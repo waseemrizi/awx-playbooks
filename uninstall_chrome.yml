@@ -29,3 +29,13 @@
             name: google-chrome-stable
             state: present
       when: chrome_installed.rc != 0
+
+    # ✅ Add these two tasks at the bottom
+    - name: Confirm Google Chrome installation
+      command: google-chrome --version
+      register: chrome_version_output
+      changed_when: false
+
+    - name: Show installed version
+      debug:
+        var: chrome_version_output.stdout
